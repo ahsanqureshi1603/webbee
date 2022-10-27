@@ -8,10 +8,14 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class EventsController extends BaseController
 {
-    public function getWarmupEvents() {
+    public function getWarmupEvents()
+    {
         return Event::all();
     }
 
@@ -100,8 +104,20 @@ class EventsController extends BaseController
     ]
      */
 
-    public function getEventsWithWorkshops() {
-        throw new \Exception('implement in coding task 1');
+    public function getEventsWithWorkshops()
+    {
+        try {
+            $events = Event::with('workshops')->get();
+            $response = $events;
+            $code = Response::HTTP_OK;
+        } catch (\Throwable $th) {
+            // DB::rollBack();
+            Log::info($th);
+            $response['success'] = false;
+            $response['message'] = 'Internal Server Error';
+            $code = Response::HTTP_INTERNAL_SERVER_ERROR;
+        }
+        return response()->json($response, $code);
     }
 
 
@@ -178,7 +194,8 @@ class EventsController extends BaseController
     ```
      */
 
-    public function getFutureEventsWithWorkshops() {
+    public function getFutureEventsWithWorkshops()
+    {
         throw new \Exception('implement in coding task 2');
     }
 }
