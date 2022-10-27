@@ -4,7 +4,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\MenuItem;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
+
 
 class MenuController extends BaseController
 {
@@ -92,7 +96,33 @@ class MenuController extends BaseController
     ]
      */
 
-    public function getMenuItems() {
-        throw new \Exception('implement in coding task 3');
+    public function getMenuItems()
+    {
+        try {
+            $menuItems = $this->getChildren(NULL);
+            $response = $menuItems;
+            $code = Response::HTTP_OK;
+        } catch (\Throwable $th) {
+            Log::info($th);
+            $response['success'] = false;
+            $response['message'] = 'Internal Server Error';
+            $code = Response::HTTP_INTERNAL_SERVER_ERROR;
+        }
+        return response()->json($response, $code);
+    }
+
+    /**
+     * Recursive Function to return children of menu
+     */
+    public function getChildren($id)
+    {
+        $menuItems = MenuItem::where('parent_id', $id)->get();
+        if (empty($menuItems)) {
+            return [];
+        }
+        foreach ($menuItems as $menuItem) {
+            $menuItem->children = $this->getChildren($menuItem->id);
+        }
+        return $menuItems;
     }
 }
