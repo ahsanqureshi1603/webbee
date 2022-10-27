@@ -36,7 +36,48 @@ class CreateCinemaSchema extends Migration
      */
     public function up()
     {
-        throw new \Exception('implement in coding task 4, you can ignore this exception if you are just running the initial migrations.');
+        Schema::create('showrooms', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('movies', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('movie_slots', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->dateTime('start_time');
+            $table->dateTime('end_time');
+            $table->timestamps();
+        });
+
+        Schema::create('movie_seats', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('movie_shows', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->integer('showroom_id')->unsigned();
+            $table->foreign('showroom_id')->references('id')->on('showrooms')->onDelete('cascade');
+            $table->integer('movie_id')->unsigned();
+            $table->foreign('movie_id')->references('id')->on('movies')->onDelete('cascade');
+            $table->integer('movie_slot_id')->unsigned();
+            $table->foreign('movie_slot_id')->references('id')->on('movie_slots')->onDelete('cascade');
+            $table->integer('movie_seat_id')->unsigned();
+            $table->foreign('movie_seat_id')->references('id')->on('movie_seats')->onDelete('cascade');
+            $table->string('type'); //vip,couple,super
+            $table->string('price');
+            $table->boolean('isBooked')->default(false);
+            $table->timestamps();
+        });
     }
 
     /**
